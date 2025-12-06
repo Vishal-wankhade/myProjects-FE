@@ -50,6 +50,32 @@ function App() {
        setAllTasks(completed);
    }
 
+   function handleCompleteAll(){
+     const newTasks = allTasks.map((item,index) => {
+      item.status = true;
+      return item;
+     })
+      setAllTasks(newTasks);
+   }
+
+    function handleIncompleteAll(){
+     const newTasks = allTasks.map((item,index) => {
+      item.status = false;
+      return item;
+     })
+      setAllTasks(newTasks);
+   }
+
+   function handleDelCompleteAll(){
+      const newAllTasks = allTasks.filter((item,i) => item.status === false);
+      setAllTasks(newAllTasks);
+   }
+
+   function handleDelIncompleteAll(){
+      const newAllTasks = allTasks.filter((item,i) => item.status === true);
+      setAllTasks(newAllTasks);
+   }
+
   return (
     <div className="App">
      <div >
@@ -66,7 +92,7 @@ function App() {
         <div>
 
         <button onClick={() => getCompletedTasks()}> Completed Task</button>
-        <button onClick={() => getIncompletedTasks()}> Completed Task</button>
+        <button onClick={() => getIncompletedTasks()}> Pending Task</button>
       
         </div>
         <div>
@@ -82,6 +108,13 @@ function App() {
               )
             })
           }
+        </div>
+        <div>
+          <button onClick={() => handleCompleteAll()}>Complete All Tasks</button>
+          <button onClick={() => handleIncompleteAll()}>Incomplete All Tasks</button>
+          <button onClick={() => handleDelCompleteAll()}>Delete All Complete All Tasks</button>
+          <button onClick={() => handleDelIncompleteAll()}>Delete All Incomplete All Tasks</button>
+          <button onClick={() => setAllTasks([])}>Clear All Tasks</button>
         </div>
       </div>
       
