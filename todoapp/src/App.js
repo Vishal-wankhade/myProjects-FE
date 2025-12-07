@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 import './App.css';
 
 function App() {
    const [allTasks, setAllTasks] = useState([]);
    const [task, setTask] = useState("");
-   const [isEditable, setIsEditable] = useState(false); 
    const [editTask, setEditTask] = useState(null);
    const [completedTasks, setCompletedTasks] = useState([]);
    const [showCompleted, setShowCompleted] = useState(false);
    const [showIncomplete, setShowIncomplete] = useState(false);
    const [incompleteTasks, setIncompleteTasks] = useState([]);
    const [taskList, setTaskList] = useState(allTasks)
+   const [deleteAllWarning, setDeleteAllWarning] = useState(false);
 
    
    function handleChange(e){
@@ -28,7 +29,8 @@ function App() {
       }
    }, [showCompleted, showIncomplete, allTasks]);
    
-   console.log(allTasks);
+   const notify = () => toast('Please enter a task!');
+  
 
    function handleClick(){
 
@@ -42,7 +44,7 @@ function App() {
       setAllTasks([...allTasks, newTask]);
       setTask("");
      }else{
-      alert("Please enter a task");
+      notify();
      }
       
    }
@@ -106,10 +108,12 @@ function App() {
    }
 
    function handleEdit(index){
-    const newTasks = [...allTasks];
+    const newTasks = allTasks.map((item,i) => {
+      item.editStatus = false;
+      return item;
+     })
     newTasks[index].editStatus = true;
     setAllTasks(newTasks);
-    setIsEditable(true);
     setEditTask(allTasks[index].taskname);
    }
 
@@ -122,15 +126,31 @@ function App() {
    function handleUpdateTask(index){
     const newTasks = [...allTasks];
     newTasks[index].taskname = editTask;
+    newTasks[index].editStatus = false;
     setAllTasks(newTasks);
-    setIsEditable(false);
    }
 
  
 
  return (
         <div className="App">
-          <div className="todo-container">
+          {
+            deleteAllWarning && <div className="delete-all-warning">
+              <div className="warning-content">
+                <h2>Are you sure you want to delete all tasks?</h2>
+                <div className="warning-actions">
+  <button 
+  onClick={() => {setAllTasks([]); setDeleteAllWarning(false);}} 
+  className='yes'
+ >Yes</button>
+                  <button onClick={() => setDeleteAllWarning(false)} className='no'>No</button>
+                </div>
+              </div>
+            </div>
+          }
+          <div className={deleteAllWarning ? "blurred" : ""}>
+             <div className="todo-container">
+          <Toaster />
             <div className="todo-header">
               <h1>To Do App</h1>
             </div>
@@ -142,6 +162,11 @@ function App() {
                 onChange={handleChange}
               />
               <button onClick={handleClick}>Add</button>
+            </div>
+            <div className='todo-list-counts'>
+              <p>Total Tasks: {allTasks.length}</p>
+              <p>Completed Tasks: {allTasks.filter(item => item.status).length}</p>
+              <p>Pending Tasks: {allTasks.filter(item => !item.status).length}</p>
             </div>
             <h3>Filter By</h3>
             <div className="todo-filters">
@@ -178,7 +203,7 @@ function App() {
                     
                     <button onClick={() => handleDelete(index)}>Delete</button>
                     {
-                      isEditable ? (
+                      taskList[index].editStatus ? (
                       
                          
                           <button onClick={() => handleUpdateTask(index)} className='update-btn'>Update</button>
@@ -196,8 +221,9 @@ function App() {
               <button onClick={handleIncompleteAll}>Incomplete All Tasks</button>
               <button onClick={handleDelCompleteAll}>Delete All Completed Tasks</button>
               <button onClick={handleDelIncompleteAll}>Delete All Incomplete Tasks</button>
-              <button onClick={() => setAllTasks([])} className='clearAll'>Clear All Tasks</button>
+              <button onClick={() => {setDeleteAllWarning(true)}} className='clearAll'>Clear All Tasks</button>
             </div>
+          </div>
           </div>
         </div>
       );
